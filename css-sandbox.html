@@ -1,8 +1,38 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+	CSS Sandbox
+	by Aurelio Jargas
+	www.aurelio.net
+	
+	Created on May 2006, released on Oct 2007.
+	Yeah, it's getting harder to find some spare time...
+	
+	Tested on: Safari, Firefox, Opera, IE 6
+	License: BSD
+	
+	Comments, bug reports and PayPal donations are welcome on
+	verde@aurelio.net
+	
+	See more free softwares at
+	www.aurelio.net/soft
+	
+	Thank You:
+		Alessandro Ramos dos Santos (bugfixes)
+		http://edenfall.blogspot.com
+	 
+		Luciano Espirito Santo "LES" (bugfixes)
+-->
+
 <html>
 <head>
 <title>CSS Sandbox</title>
 <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+<meta name="generator" content="Vim and TextMate">
+<meta name="author" content="Aurelio Jargas www.aurelio.net">
+<meta name="keywords" content="CSS, sandbox, online, interactive, demo, play, properties, effect">
+<meta name="description" content="CSS Sandbox is an interactive page to play with CSS properties on-the-fly. Just click and see the effect instantly. It's fast and funny!">
+
 
 <style type="text/css">
 	body
@@ -10,121 +40,125 @@
 		margin		: 0;
 		padding		: 0;
 		}
-	#sandboxarea {
-		height		: 100%;
-	}
+	a
+		{
+		text-decoration	: none;
+		}	
 	#sandbox
 		{
 		border		: 5px double #000;
 		padding		: 1em;
 		width		: 50%;
 		text-align	: justify;
-		margin		: auto;
 		font-variant	: small-caps;
 		position	: relative;
 		top		: 40px;
-		/*
+		left		: 25%;
 		z-index		: 1;
-		*/
 		}
 	#author
 		{
-		position	: fixed;
-		left		: 0;
+		position	: absolute;
 		top		: 0;
+		left		: 0;
 		margin		: 0;
+		width		: 1em;
 		padding		: 5px;
-		width		: 5%;
 		}
-	#author a
-		{
-		background-color: #fff;
-		color		: #000;
-		text-decoration	: none;
-		}	
 	#toolbar
 		{
-		position	: fixed;
-		right		: 0;
+		position	: absolute;
 		top		: 0;
+		right		: 0;
+		margin		: 0;
 		background-color: #eee;
-		border-collapse	: collapse
 		}
 	#toolbar ul
 		{
-		list-style-type	: none;
 		margin		: 0;
 		padding		: 0;
+		list-style-type	: none;
 		}
 	#toolbar li
 		{
-		text-align	: center;
+		width		: 2em;
 		border		: 1px solid #9cf;
 		padding		: .5em;
-		font-size	: 100%;
+		text-align	: center;
 		font-family	: sans-serif;
 		font-weight	: bold;
-		width		: 2em;
 		}
 	#helpbox
 		{
 		display		: none;
-		position	: fixed;
+		position	: absolute;
 		top		: 1em;
 		right		: 4em;
 		border		: 1px solid maroon;
 		background-color: #fcc;
-		color		: maroon;
-		padding		: 10px;
-		font-size	: 80%;
-		width		: 15%;
+		width		: 40%;
 		cursor		: default;
-		font-family	: sans-serif;
+		z-index		: 3;
 		-moz-border-radius: 16px;
-		z-index		: 2;
 		}
-	#rulesarea
+	#helpbox td
 		{
-		display		: table-row;
+		color		: maroon;
+		font-size	: 80%;	
+		padding		: 10px;
+		font-family	: sans-serif;
+		vertical-align	: top;
+		}
+	#properties
+		{
 		clear		: both;
 		position	: absolute;
 		left		: 0;
 		bottom		: 0;
 		background-color: #eee;
-		border-collapse	: collapse
+		border-collapse	: collapse;
+		z-index		: 2;
 		}
-	.column
+	#properties table
 		{
-		display		: table-cell;
+		border-collapse	: collapse;
+		}
+	#properties td
+		{
 		margin		: 0;
-		border		: 1px solid #9cf;
 		padding		: .5em;
+		border		: 1px solid #9cf;
+		vertical-align	: top;
 		font-size	: 80%;
 		font-family	: serif;
 		}
-	.column ul
+	#properties td ul
 		{
 		padding		: 0;
 		margin		: 0;
 		margin-left	: .7em;
 		}
-	.column li
+	#properties td li
 		{
 		display		: inline;
 		line-height	: 100%;
-		color		: #888;
+		color		: #666;
 		}
-	.column li:hover, #wild:hover
+	#properties td li:hover, #wild:hover
 		{
 		background-color: yellow;
 		color		: #000;
-		cursor		: default;
 		}
-	li.active
+	#properties li.active
 		{
-		border		: 1px solid #daa;
+		outline		: 1px solid #daa;
 		background-color: #fcc;
 		color		: #333;
+		}
+	#toolbar .active
+		{
+		outline-width	: 0;
+		border		: 1px solid #daa;
 		}
 	#wild
 		{
@@ -133,86 +167,134 @@
 		right		: 2px;
 		color		: #000;
 		}
+		
+	* html li.active
+		{
+		border		: 1px solid #daa; /* IE is outline-less */
+		}
 </style>
 
 <script type="text/javascript">
 
+// From prototype.js
+String.prototype.strip = function() {
+	return this.replace(/^\s+/, '').replace(/\s+$/, '');
+}
+String.prototype.stripTags = function() {
+	return this.replace(/<\/?[^>]+>/g, '');
+}
+String.prototype.camelize = function() {
+	var oStringList = this.split('-');
+	if (oStringList.length == 1) return oStringList[0];
+	
+	var camelizedString = this.indexOf('-') == 0
+		? oStringList[0].charAt(0).toUpperCase() + oStringList[0].substring(1)
+		: oStringList[0];
+	
+	for (var i = 1, len = oStringList.length; i < len; i++) {
+		var s = oStringList[i];
+		camelizedString += s.charAt(0).toUpperCase() + s.substring(1);
+	}
+	
+	return camelizedString;
+}
+
+// Show/hide the nice help dialog when mouse passes at the "?" sign
 function toggleHelp(button) {
-	var helpbox = document.getElementById("helpbox");
-	if (helpbox.style.display != "block") {
-		helpbox.style.display = "block";
-		button.className = "active";
+	var helpbox = document.getElementById('helpbox');
+	if (helpbox.style.display != 'block') {
+		helpbox.style.display = 'block';
+		button.className = 'active';
 	} else {
-		helpbox.style.display = "none";
-		button.className = "";
+		helpbox.style.display = 'none';
+		button.className = '';
 	}
 }
+
+// Set the Paragraph or List mode when the mouse enters the button
 function toggleMode(button) {
-	if (button.id == "listbutton") {
+	if (button.id == 'listbutton') {
 		sandboxAsList();
-		document.getElementById("parabutton").className = "";
-		button.className = "active";
-		
+		document.getElementById('parabutton').className = '';
 	} else {
 		sandboxAsPara();
-		document.getElementById("listbutton").className = "";
-		button.className = "active";
+		document.getElementById('listbutton').className = '';
 	}
+	button.className = 'active';
 }
-function toggleWild() {
-	var lis  = document.getElementsByTagName("li");
-	var wild = document.getElementById("wild"); 
-	if (wild.innerHTML == "sane") {
-		for (i = 0; i < lis.length ; i++) {
-			if (lis[i].id) continue; // toolbar
-			lis[i].setAttribute("onMouseOver", "xyzzy(this);");
-		}
-		wild.innerHTML = "wild";
-	} else {
-		for (i = 0; i < lis.length ; i++) {
-			if (lis[i].id) continue;
-			lis[i].setAttribute("onMouseOver", "");
-		}
-		wild.innerHTML = "sane";
-	}
-}
+
+// Deactivated the "wild" feature.
+// - setAttribute() doesn't work on IE
+// - The feature is funny, but useless
+//
+// function toggleWild() {
+// 	var props = document.getElementById('properties').getElementsByTagName('a');
+// 	var wild = document.getElementById('wild'); 
+// 	var current = wild.innerHTML;
+// 	for (i = 0; i < props.length; i++) {
+// 		if (current == 'sane') {
+// 			props[i].setAttribute('onMouseOver', 'xyzzy(this);');
+// 		} else {
+// 			props[i].setAttribute('onMouseOver', '');
+// 		}
+// 	}
+// 	wild.innerHTML = (current == 'wild') ? 'sane' : 'wild'; // flip
+// }
+
+// Converts each sentence of the sandbox text to a list item
 function sandboxAsList() {
-	var text = document.getElementById("sandbox").innerHTML;
-	if (text.charAt(0) == "<") return; // already done
-	var listed = "<ul><li>"+text.replace(/\. /g, ".</li><li>")+"</li></ul>";
-	document.getElementById("sandbox").innerHTML = listed;
+	var text = document.getElementById('sandbox').innerHTML;
+	if (text.charAt(0) == '<') return; // already done
+	var listed = '<ul><li>' + text.replace(/\./g, '.</li><li>') + '</li></ul>';
+	listed = listed.replace(/<li>\s*<\/li>/, ''); // remove empty item
+	document.getElementById('sandbox').innerHTML = listed;
 }
+
+// Converts the list of items to a paragraph
 function sandboxAsPara() {
-	var text = document.getElementById("sandbox").innerHTML;
-	if (text.charAt(0) != "<") return; // already done
-	var para = text.replace(/<[^>]*>/g, " "); // strip tags
-	document.getElementById("sandbox").innerHTML = para;
+	var text = document.getElementById('sandbox').innerHTML;
+	if (text.charAt(0) != '<') return; // already done
+	document.getElementById('sandbox').innerHTML = text.stripTags();
 }
+
+// The magic function called whenever the user clicks some property
+// It applies the property to the Sandbox
 function xyzzy(button) {
-	var prop = button.parentNode.className;
-	var value = button.innerHTML;
-	if (prop == "cursor") {
-		document.getElementsByTagName("body")[0].style.setProperty(
-			prop, value, "");
-	} else {
-		document.getElementById("sandbox").style.setProperty(
-			prop, value, "");
-		// Duplicate on list
-		if (prop.slice(0,5) == "list-") {
-			document.getElementById("sandbox"
-				).childNodes[0].style.setProperty(
-				prop, value, "");
+	try {
+		// Get property name and value
+		// <UL class="color"><LI><A onClick="xyzzy">blue</A></LI></UL>
+		var prop = button.parentNode.parentNode.className.camelize();
+		var value = button.innerHTML.stripTags().strip(); // strip: IE hates spaces
+
+		if (prop == 'cursor') {
+			// The cursor property is applied to BODY, not Sandbox
+			document.getElementsByTagName('body')[0].style['cursor'] = value;
+		} else {
+			// Apply the property to the Sandbox
+			document.getElementById('sandbox').style[prop] = value;
+			// Apply the property to the list (when in list mode)
+			if (prop.slice(0,4) == 'list') {
+				document.getElementById('sandbox').childNodes[0].style[prop] = value;
+			}
 		}
-	}
-	// Remove "active" class from all brother nodes then add the current
-	var children = button.parentNode.childNodes;
-	for (i = 0; i < children.length; i++) { children[i].className = ""; }
-	button.className = "active";
+
+		// Highlight the clicked property
+		// Remove "active" class from all brother nodes then add the current
+		// Tip: the LI element (not A) holds the class
+		var children = button.parentNode.parentNode.childNodes;
+		for (var i = 0; i < children.length; i++) { children[i].className = ''; }
+		button.parentNode.className = 'active';
+		
+	// Hide errors from the user, they won't hurt
+	} catch(e) {}
 }
-function init() { // Add onclick to all <LI>
-	var lis = document.getElementsByTagName("li");
-	for (i = 0; i < lis.length ; i++) {
-		lis[i].setAttribute("onClick", "xyzzy(this);");
+
+function init() {
+	// Add <a onClick> to all CSS properties
+	// Can't add onClick directly to LI because IE 6 doesn't honor it
+	var lis = document.getElementById('properties').getElementsByTagName('li');
+	for (var i = 0; i < lis.length ; i++) {
+		lis[i].innerHTML = '<a onClick="xyzzy(this);">' + lis[i].innerHTML + '</a>';	
 	}
 }
 window.onload = init;
@@ -222,12 +304,14 @@ window.onload = init;
 <body>
 
 <div id="author">
-	<strong style="font-size: 150%">CSS&nbsp;Sandbox</strong> by
-	<a href="http://aurelio.net">Aurelio Marinho Jargas</a>
-	<a href="http://aurelio.net" style="color:blue">www.<br />
-	aurelio.<br />
-	net</a>
-
+	<strong style="font-size:150%">CSS&nbsp;Sandbox</strong>
+	by
+	<a title="Get more free softwares on the Aurelio's site"
+		href="http://aurelio.net">Aurelio&nbsp;Jargas</a>
+	<br>
+	<br>	
+	<a title="Deixe seu comentário!"
+		href="http://aurelio.wordpress.com/2007/10/17/brinque-de-css/">comentários</a>
 </div>
 
 <div id="toolbar">
@@ -247,16 +331,21 @@ window.onload = init;
 </div>
 
 <div id="helpbox" onMouseOut="this.style.display='none';">
-	<strong>Help</strong>
-	<p>Messed it all? Just Reload the page and start again.</p>
-	<p>Click on the CSS properties at the bottom to change the Sandbox
-	appearance.</p>
-	<p>Point the "A" and "1." buttons to use Paragraph or List on
-	the Sandbox.
-	<p>Maximize your browser window and be happy.</p>
+	<table><tr><td>
+		<strong>Help</strong>
+		<p>Click on the CSS properties at the bottom to change the Sandbox appearance.</p>
+		<p>Point the "A" and "1." buttons to use Paragraph or List on the Sandbox.</p>
+		<p>Messed it all? Just Reload the page and start again.</p>
+		<p>Maximize your browser window and be happy.</p>
+	</td><td style="border-left:1px solid maroon">
+		<strong>Ajuda</strong>
+		<p>Clique nas propriedades do CSS (lá embaixo) para mudar a aparência da Caixa.</p>
+		<p>Passe o mouse sobre os botões "A" e "1." para usar Parágrafo ou Lista na Caixa.</p>
+		<p>Bagunçou tudo? Basta recarregar a página.</p>
+		<p>Aumente o tamanho da janela do navegador!</p>
+	</td></tr></table>
 </div>
 
-<div id="sandboxarea">
 <div id="sandbox">
 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
 tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
@@ -266,11 +355,26 @@ velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
 cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
 est laborum.
 </div>
-</div>
 
-<div id="rulesarea">
+<noscript>
+<p style="color:red;background:yellow;text-align:center;padding:1em;margin-top:3em">
+Sorry. No Javascript detected, it won't work.<br><br>
+Ops! Seu navegador está sem Javascript, sem ele não vai funcionar.</p>
+</noscript>
 
-<div class="column">
+<div id="properties">
+<!-- Note:
+ 	At first I've used DIVs instead TABLE.
+	It worked in all browsers, except...
+  	...guess who.
+
+	But now I'm happy this way,
+	please don't untable it.
+-->
+<table>
+<tr>
+
+<td>
 color:
 <ul class="color">
 	<li>aqua</li>
@@ -283,6 +387,7 @@ color:
 	<li>maroon</li>
 	<li>navy</li>
 	<li>olive</li>
+	<li>orange</li>
 	<li>purple</li>
 	<li>red</li>
 	<li>silver</li>
@@ -302,12 +407,14 @@ border-color:
 	<li>maroon</li>
 	<li>navy</li>
 	<li>olive</li>
+	<li>orange</li>
 	<li>purple</li>
 	<li>red</li>
 	<li>silver</li>
 	<li>teal</li>
 	<li>white</li>
 	<li>yellow</li>
+	<li>transparent</li>
 </ul>
 background-color:
 <ul class="background-color">
@@ -321,17 +428,19 @@ background-color:
 	<li>maroon</li>
 	<li>navy</li>
 	<li>olive</li>
+	<li>orange</li>
 	<li>purple</li>
 	<li>red</li>
 	<li>silver</li>
 	<li>teal</li>
 	<li>white</li>
 	<li>yellow</li>
+	<li>transparent</li>
 </ul>
 background-image:
 <ul class="background-image">
 	<li>none</li>
-	<li>url(css-sandbox.gif)</li>
+	<li>url(image.gif)</li>
 </ul>
 background-repeat:
 <ul class="background-repeat">
@@ -353,17 +462,16 @@ background-attachment:
 	<li>scroll</li>
 	<li>fixed</li>
 </ul>
-</div>
+</td>
 
 
-<div class="column">
+<td>
 font-family:
 <ul class="font-family">
 	<li>Verdana</li>
 	<li>Arial</li>
 	<li>Times</li>
-	<li>Courier</li>
-	<br />
+	<li>Courier<br /></li>
 	<li>sans-serif</li>
 	<li>serif</li>
 	<li>monospace</li>
@@ -378,17 +486,14 @@ font-size:
 	<li>medium</li>
 	<li>large</li>
 	<li>x-large</li>
-	<li title="I hope your browser window is huge...">xx-large</li>
-	<br />
+	<li title="I hope your browser window is huge...">xx-large<br /></li>
 	<li>smaller</li>
-	<li>larger</li>
-	<br />
+	<li>larger<br /></li>
 	<li>8pt</li>
 	<li>10pt</li>
 	<li>12pt</li>
 	<li>14pt</li>
-	<li>16pt</li>
-	<br />
+	<li>16pt<br /></li>
 	<li>50%</li>
 	<li>75%</li>
 	<li>100%</li>
@@ -412,28 +517,10 @@ font-weight:
 	<li>bolder</li>
 	<li>lighter</li>
 </ul>
-<!--
-	font-stretch:
-	<ul class="font-stretch">
-		<li>ultra-condensed</li>
-		<li>extra-condensed</li>
-		<li>condensed</li>
-		<li>semi-condensed</li>
-		<li>normal</li>
-		<li>semi-expanded</li>
-		<li>expanded</li>
-		<li>extra-expanded</li>
-		<li>ultra-expanded</li>
-	</ul>
-	<ul class="font-stretch">
-		<li>wider</li>
-		<li>narrower</li>
-	</ul>
--->
-</div>
+</td>
 
 
-<div class="column">
+<td>
 text-align:
 <ul class="text-align">
 	<li>left</li>
@@ -473,34 +560,38 @@ line-height:
 letter-spacing:
 <ul class="letter-spacing">
 	<li>normal</li>
-	<li>.1em</li>
 	<li>.2em</li>
 	<li>.5em</li>
 	<li>1em</li>
+	<li>-.1em</li>
 </ul>
 word-spacing:
 <ul class="word-spacing">
 	<li>normal</li>
-	<li>.2em</li>
 	<li>.5em</li>
 	<li>1em</li>
-	<li>1.5em</li>
+	<li>2em</li>
+	<li>-.5em</li>
 </ul>
 white-space:
 <ul class="white-space">
 	<li>normal</li>
 	<li>pre</li>
 	<li>nowrap</li>
+<!--
+	<li>pre-wrap</li>
+	<li>pre-line</li>
+-->
 </ul>
 direction:
 <ul class="direction">
 	<li>ltr</li>
 	<li>rtl</li>
 </ul>
-</div>
+</td>
 
 
-<div class="column">
+<td>
 border-style:
 <ul class="border-style">
 	<li>none</li>
@@ -517,14 +608,12 @@ border-width:
 <ul class="border-width">
 	<li title="Requires border-style != none">thin</li>
 	<li title="Requires border-style != none">medium</li>
-	<li title="Requires border-style != none">thick</li>
-	<br />
+	<li title="Requires border-style != none">thick<br /></li>
 	<li>0</li>
 	<li title="Requires border-style != none">1px</li>
 	<li title="Requires border-style != none">2px</li>
 	<li title="Requires border-style != none" class="active">5px</li>
-	<li title="Requires border-style != none">10px</li>
-	<br />
+	<li title="Requires border-style != none">10px<br /></li>
 	<li title="Requires border-style != none">0.5em</li>
 	<li title="Requires border-style != none">1em</li>
 	<li title="Requires border-style != none">2em</li>
@@ -536,8 +625,7 @@ padding:
 	<li>2em</li>
 	<li>3em</li>
 	<li>4em</li>
-	<li>5em</li>
-	<br />
+	<li>5em<br /></li>
 	<li>1px</li>
 	<li>5px</li>
 	<li>10px</li>
@@ -548,7 +636,9 @@ visibility:
 <ul class="visibility">
 	<li>visible</li>
 	<li>hidden</li>
+<!--
 	<li>collapse</li>
+-->
 </ul>
 display:
 <ul class="display">
@@ -556,11 +646,10 @@ display:
 	<li>block</li>
 	<li>inline</li>
 	<li>list-item</li>
-	<li>marker</li>
 	<li>run-in</li>
-	<li>compact</li>
-	<li>table</li>
+	<li>inline-block</li>
 	<li>inline-table</li>
+	<li>table</li>
 	<li>table-cell</li>
 <!--
 	<li>table-row</li>
@@ -570,6 +659,7 @@ display:
 	<li>table-caption</li>
 	<li>table-header-group</li>
 	<li>table-footer-group</li>
+	<li>inherit</li>
 -->
 </ul>
 cursor:
@@ -582,6 +672,7 @@ cursor:
 	<li>move</li>
 	<li>text</li>
 	<li>wait</li>
+	<li>progress</li>
 	<li>help</li>
 	<li>e-resize</li>
 	<li>n-resize</li>
@@ -592,10 +683,10 @@ cursor:
 	<li>se-resize</li>
 	<li>sw-resize</li>
 </ul>
-</div>
+</td>
 
 
-<div class="column">
+<td>
 width:
 <ul class="width" style="white-space: nowrap">
 	<li>auto</li>
@@ -610,6 +701,13 @@ height:
 	<li>100px</li>
 	<li>200px</li>
 	<li>50%</li>
+</ul>
+margin:
+<ul class="margin">
+	<li>auto</li>
+	<li>0</li>
+	<li>1em</li>
+	<li>5em</li>
 </ul>
 overflow:
 <ul class="overflow">
@@ -626,62 +724,46 @@ float:
 </ul>
 position:
 <ul class="position">
-	<li>static</li>
+	<li title="Ignores top, bottom, right, left">static</li>
 	<li class="active">relative</li>
 	<li>absolute</li>
-	<li title="Scroll the page to see it fixed">fixed</li>
+	<li>fixed</li>
 </ul>
 top:
 <ul class="top">
 	<li>auto</li>
 	<li>0</li>
 	<li class="active">40px</li>
-	<li>50%</li>
+	<li>25%</li>
 </ul>
 bottom:
 <ul class="bottom">
 	<li>auto</li>
 	<li>0</li>
 	<li>40px</li>
-	<li>50%</li>
+	<li>25%</li>
 </ul>
 left:
 <ul class="left">
 	<li>auto</li>
 	<li>0</li>
 	<li>40px</li>
-	<li>50%</li>
+	<li class="active">25%</li>
 </ul>
 right:
 <ul class="right">
 	<li>auto</li>
 	<li>0</li>
 	<li>40px</li>
-	<li>50%</li>
+	<li>25%</li>
 </ul>
-<!--
-	margin-left:
-	<ul class="margin-left">
-		<li>0</li>
-		<li>1em</li>
-		<li>5em</li>
-		<li>auto</li>
-	</ul>
-	margin-right:
-	<ul class="margin-right">
-		<li>0</li>
-		<li>1em</li>
-		<li>5em</li>
-		<li>auto</li>
-	</ul>
--->
-</div>
+</td>
 
-<div class="column" id="listcolumn" style="width:10%">
+<td style="width: 10%">
 list-style-type:
 <ul class="list-style-type">
 	<li>none</li>
-	<li>disk</li>
+	<li>disc</li>
 	<li>circle</li>
 	<li>square</li>
 	<li>decimal</li>
@@ -709,14 +791,14 @@ list-style-type:
 list-style-image:
 <ul class="list-style-image">
 	<li>none</li>
-	<li>url(css-sandbox.gif)</li>
+	<li>url(image.gif)</li>
 </ul>
 list-style-position:
 <ul class="list-style-position">
 	<li>inside</li>
 	<li>outside</li>
 </ul>
-</div>
+</td>
 
 <!--
 marker-offset:
@@ -737,6 +819,59 @@ clip:
 	<li>rect(0px 200px 200px 0px)</li>
 	<li>rect(10px 10px 10px 10px)</li>
 </ul>
+z-index:
+<ul class="z-index">
+	<li>auto</li>
+	<li>5</li>
+	<li>-5</li>
+</ul>
+clear:
+<ul class="clear">
+	<li>none</li>
+	<li>left</li>
+	<li>right</li>
+	<li>both</li>
+</ul>
+
+
+page-break-before:
+<ul class="page-break-before">
+	<li>auto</li>
+	<li>always</li>
+	<li>left</li>
+	<li>right</li>
+</ul>
+page-break-after:
+<ul class="page-break-after">
+	<li>auto</li>
+	<li>always</li>
+	<li>left</li>
+	<li>right</li>
+</ul>
+
+
+Table properties (maybe do a Table Mode?)
+
+<ul class="table-layout">
+	<li>auto</li>
+	<li>fixed</li>
+</ul>
+<ul class="border-collapse">
+	<li>separate</li>
+	<li>collapse</li>
+</ul>
+<ul class="border-spacing">
+	<li>5px</li>
+	<li>5.0em</li>
+</ul>
+<ul class="caption-side">
+	<li>top</li>
+	<li>bottom</li>
+</ul>
+<ul class="empty-cells">
+	<li>show</li>
+	<li>hide</li>
+</ul>
 vertical-align:
 <ul class="vertical-align">
 	<li>sub</li>
@@ -744,33 +879,28 @@ vertical-align:
 	<li>middle</li>
 	<li>50%</li>
 </ul>
--->
-<!--
-<ul class="z-index">
-	<li>auto</li>
-	<li>5</li>
-	<li>-5</li>
+
+Maybe some links on the Sandbox to illustrate pseudo properties?
+
+pseudo:
+<ul class="pseudo">
+	<li>active</li>
+	<li>hover</li>
+	<li>link</li>
+	<li>visited</li>
+	<li>first-letter</li>
+	<li>first-line</li>
 </ul>
-XXX see how to define pseudo classes in javascript
-hover:
-<ul class=":hover">
-	<li>...</li>
-</ul>
-<ul class="first-letter">
-	<li>...</li>
-</ul>
-<ul class="first-line">
-	<li>...</li>
-</ul>
+
 -->
 
-
-<!-- close #rulesarea -->
+</tr></table>
 </div>
 
-<div id="wild"
+<!-- <div id="wild"
 	title="We have the SANE and WILD operation modes. Click here to change the mode. What is wild? Try for yourself, at your own risk :)"
 	onClick="toggleWild()">sane</div>
+ -->
 
 </body>
 </html>
