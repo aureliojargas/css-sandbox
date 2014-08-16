@@ -15,7 +15,7 @@
 	verde@aurelio.net
 	
 	See more free softwares at
-	www.aurelio.net/soft
+	www.aurelio.net/projects/
 	
 	Thank You:
 		Alessandro Ramos dos Santos (bugfixes)
@@ -30,9 +30,9 @@
 <html>
 <head>
 <title>CSS Sandbox</title>
-<meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <meta name="generator" content="Vim and TextMate">
-<meta name="author" content="Aurelio Jargas www.aurelio.net">
+<meta name="author" content="Aurelio Jargas">
 <meta name="keywords" content="CSS, sandbox, online, interactive, realtime, demo, play, properties, effect">
 <meta name="description" content="CSS Sandbox is an interactive page to play with CSS properties on-the-fly. Just click and see the effect instantly. It's fast and funny!">
 
@@ -46,7 +46,7 @@
 	a
 		{
 		text-decoration	: none;
-		}	
+		}
 	#sandbox
 		{
 		border		: 5px double #000;
@@ -59,6 +59,7 @@
 		top		: 40px;
 		left		: 25%;
 		z-index		: 1;
+/*		display:none;*/
 		}
 	#sidebar
 		{
@@ -124,7 +125,7 @@
 		font-family	: sans-serif;
 		vertical-align	: top;
 		}
- 	#codebox
+	#codebox
 		{
 		display		: none;
 		position	: absolute;
@@ -221,16 +222,16 @@ String.prototype.stripTags = function() {
 String.prototype.camelize = function() {
 	var oStringList = this.split('-');
 	if (oStringList.length == 1) return oStringList[0];
-	
+
 	var camelizedString = this.indexOf('-') == 0
 		? oStringList[0].charAt(0).toUpperCase() + oStringList[0].substring(1)
 		: oStringList[0];
-	
+
 	for (var i = 1, len = oStringList.length; i < len; i++) {
 		var s = oStringList[i];
 		camelizedString += s.charAt(0).toUpperCase() + s.substring(1);
 	}
-	
+
 	return camelizedString;
 }
 
@@ -262,7 +263,7 @@ function toggleMode(button) {
 function toggleCode(display) {
 	var codebox = document.getElementById('codebox');
 	if (display) {
-		parseCssCode();		
+		parseCssCode();
 		codebox.style.display = 'block';
 	} else {
 		codebox.style.display = 'none';
@@ -289,7 +290,7 @@ function sandboxAsPara() {
 function parseCssCode() {
 	var lis = document.getElementById('properties').getElementsByTagName('li');
 	var cssCode = '';
-	for (i = 0; i < lis.length; i++) { 
+	for (i = 0; i < lis.length; i++) {
 		if (lis[i].className != 'active') continue;
 		var prop = lis[i].parentNode.className;
 		var value = lis[i].getElementsByTagName('a')[0].innerHTML.stripTags().strip();
@@ -326,7 +327,7 @@ function xyzzy(button) {
 		var children = button.parentNode.parentNode.childNodes;
 		for (var i = 0; i < children.length; i++) { children[i].className = ''; }
 		button.parentNode.className = 'active';
-		
+
 	// Hide errors from the user, they won't hurt
 	} catch(e) {}
 }
@@ -336,7 +337,7 @@ function init() {
 	// Can't add onClick directly to LI because IE 6 doesn't honor it
 	var lis = document.getElementById('properties').getElementsByTagName('li');
 	for (var i = 0; i < lis.length ; i++) {
-		lis[i].innerHTML = '<a onClick="xyzzy(this);">' + lis[i].innerHTML + '</a>';	
+		lis[i].innerHTML = '<a onClick="xyzzy(this);">' + lis[i].innerHTML + '</a>';
 	}
 }
 window.onload = init;
@@ -349,12 +350,13 @@ window.onload = init;
 	<h1 style="display:inline">CSS Sandbox</h1>
 	&nbsp;by
 	<a title="Get more free softwares on the Aurelio's site"
-		href="http://aurelio.net">Aurelio&nbsp;Jargas</a>
+		href="http://aurelio.net/about.html">Aurelio&nbsp;Jargas</a>
 	&nbsp;&nbsp;&nbsp;<a style="font-size:70%"
 		href="http://aureliosoft.wordpress.com/2007/11/08/css-sandbox/">(+info)</a>
-</div>	
+</div>
 
 <div id="sidebar">
+	<!-- Ads removed -->
 </div>
 
 <div id="toolbar">
@@ -382,9 +384,9 @@ window.onload = init;
 		<p>Maximize your browser window and be happy.</p>
 	</td><td style="border-left:1px solid maroon">
 		<strong>Ajuda</strong>
-		<p>Clique nas propriedades do CSS (lá embaixo) para mudar a aparência da Caixa.</p>
-		<p>Passe o mouse sobre os botões "A" e "1." para usar Parágrafo ou Lista na Caixa.</p>
-		<p>Bagunçou tudo? Basta recarregar a página.</p>
+		<p>Clique nas propriedades do CSS (lÃ¡ embaixo) para mudar a aparÃªncia da Caixa.</p>
+		<p>Passe o mouse sobre os botÃµes "A" e "1." para usar ParÃ¡grafo ou Lista na Caixa.</p>
+		<p>BagunÃ§ou tudo? Basta recarregar a pÃ¡gina.</p>
 		<p>Aumente o tamanho da janela do navegador!</p>
 	</td></tr></table>
 </div>
@@ -404,10 +406,17 @@ cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
 est laborum.
 </div>
 
+
+<!-- Google AdSense links -->
+<div style="margin:45px 0 0 25%">  <!-- top:40px because #sandbox position is relative -->
+	<!-- removed -->
+</div>
+
+
 <noscript>
-<p style="color:red;background:yellow;text-align:center;padding:1em;margin-top:3em;z-index:4">
+<p style="color:red;background:yellow;text-align:center;padding:1em;margin-top:3em;z-index:9">
 Sorry. No Javascript detected, it won't work.<br><br>
-Ops! Seu navegador está sem Javascript, sem ele não vai funcionar.</p>
+Ops! Seu navegador estÃ¡ sem Javascript, sem ele nÃ£o vai funcionar.</p>
 </noscript>
 
 <div id="properties">
