@@ -1,0 +1,776 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>CSS Sandbox</title>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+
+<style type="text/css">
+	body
+		{
+		margin		: 0;
+		padding		: 0;
+		}
+	#sandboxarea {
+		height		: 100%;
+	}
+	#sandbox
+		{
+		border		: 5px double #000;
+		padding		: 1em;
+		width		: 50%;
+		text-align	: justify;
+		margin		: auto;
+		font-variant	: small-caps;
+		position	: relative;
+		top		: 40px;
+		/*
+		z-index		: 1;
+		*/
+		}
+	#author
+		{
+		position	: fixed;
+		left		: 0;
+		top		: 0;
+		margin		: 0;
+		padding		: 5px;
+		width		: 5%;
+		}
+	#author a
+		{
+		background-color: #fff;
+		color		: #000;
+		text-decoration	: none;
+		}	
+	#toolbar
+		{
+		position	: fixed;
+		right		: 0;
+		top		: 0;
+		background-color: #eee;
+		border-collapse	: collapse
+		}
+	#toolbar ul
+		{
+		list-style-type	: none;
+		margin		: 0;
+		padding		: 0;
+		}
+	#toolbar li
+		{
+		text-align	: center;
+		border		: 1px solid #9cf;
+		padding		: .5em;
+		font-size	: 100%;
+		font-family	: sans-serif;
+		font-weight	: bold;
+		width		: 2em;
+		}
+	#helpbox
+		{
+		display		: none;
+		position	: fixed;
+		top		: 1em;
+		right		: 4em;
+		border		: 1px solid maroon;
+		background-color: #fcc;
+		color		: maroon;
+		padding		: 10px;
+		font-size	: 80%;
+		width		: 15%;
+		cursor		: default;
+		font-family	: sans-serif;
+		-moz-border-radius: 16px;
+		z-index		: 2;
+		}
+	#rulesarea
+		{
+		display		: table-row;
+		clear		: both;
+		position	: absolute;
+		left		: 0;
+		bottom		: 0;
+		background-color: #eee;
+		border-collapse	: collapse
+		}
+	.column
+		{
+		display		: table-cell;
+		margin		: 0;
+		border		: 1px solid #9cf;
+		padding		: .5em;
+		font-size	: 80%;
+		font-family	: serif;
+		}
+	.column ul
+		{
+		padding		: 0;
+		margin		: 0;
+		margin-left	: .7em;
+		}
+	.column li
+		{
+		display		: inline;
+		line-height	: 100%;
+		color		: #888;
+		}
+	.column li:hover, #wild:hover
+		{
+		background-color: yellow;
+		color		: #000;
+		cursor		: default;
+		}
+	li.active
+		{
+		border		: 1px solid #daa;
+		background-color: #fcc;
+		color		: #333;
+		}
+	#wild
+		{
+		position	: absolute;
+		bottom		: 0px;
+		right		: 2px;
+		color		: #000;
+		}
+</style>
+
+<script type="text/javascript">
+
+function toggleHelp(button) {
+	var helpbox = document.getElementById("helpbox");
+	if (helpbox.style.display != "block") {
+		helpbox.style.display = "block";
+		button.className = "active";
+	} else {
+		helpbox.style.display = "none";
+		button.className = "";
+	}
+}
+function toggleMode(button) {
+	if (button.id == "listbutton") {
+		sandboxAsList();
+		document.getElementById("parabutton").className = "";
+		button.className = "active";
+		
+	} else {
+		sandboxAsPara();
+		document.getElementById("listbutton").className = "";
+		button.className = "active";
+	}
+}
+function toggleWild() {
+	var lis  = document.getElementsByTagName("li");
+	var wild = document.getElementById("wild"); 
+	if (wild.innerHTML == "sane") {
+		for (i = 0; i < lis.length ; i++) {
+			if (lis[i].id) continue; // toolbar
+			lis[i].setAttribute("onMouseOver", "xyzzy(this);");
+		}
+		wild.innerHTML = "wild";
+	} else {
+		for (i = 0; i < lis.length ; i++) {
+			if (lis[i].id) continue;
+			lis[i].setAttribute("onMouseOver", "");
+		}
+		wild.innerHTML = "sane";
+	}
+}
+function sandboxAsList() {
+	var text = document.getElementById("sandbox").innerHTML;
+	if (text.charAt(0) == "<") return; // already done
+	var listed = "<ul><li>"+text.replace(/\. /g, ".</li><li>")+"</li></ul>";
+	document.getElementById("sandbox").innerHTML = listed;
+}
+function sandboxAsPara() {
+	var text = document.getElementById("sandbox").innerHTML;
+	if (text.charAt(0) != "<") return; // already done
+	var para = text.replace(/<[^>]*>/g, " "); // strip tags
+	document.getElementById("sandbox").innerHTML = para;
+}
+function xyzzy(button) {
+	var prop = button.parentNode.className;
+	var value = button.innerHTML;
+	if (prop == "cursor") {
+		document.getElementsByTagName("body")[0].style.setProperty(
+			prop, value, "");
+	} else {
+		document.getElementById("sandbox").style.setProperty(
+			prop, value, "");
+		// Duplicate on list
+		if (prop.slice(0,5) == "list-") {
+			document.getElementById("sandbox"
+				).childNodes[0].style.setProperty(
+				prop, value, "");
+		}
+	}
+	// Remove "active" class from all brother nodes then add the current
+	var children = button.parentNode.childNodes;
+	for (i = 0; i < children.length; i++) { children[i].className = ""; }
+	button.className = "active";
+}
+function init() { // Add onclick to all <LI>
+	var lis = document.getElementsByTagName("li");
+	for (i = 0; i < lis.length ; i++) {
+		lis[i].setAttribute("onClick", "xyzzy(this);");
+	}
+}
+window.onload = init;
+</script>
+
+</head>
+<body>
+
+<div id="author">
+	<strong style="font-size: 150%">CSS&nbsp;Sandbox</strong> by
+	<a href="http://aurelio.net">Aurelio Marinho Jargas</a>
+	<a href="http://aurelio.net" style="color:blue">www.<br />
+	aurelio.<br />
+	net</a>
+
+</div>
+
+<div id="toolbar">
+	<ul>
+	<li id="helpbutton"
+		onMouseOver="toggleHelp(this);"
+		onMouseOut="toggleHelp(this);">
+		?
+	</li>
+	<li id="parabutton" onMouseOver="toggleMode(this);" class="active">
+		A
+	</li>
+	<li id="listbutton" onMouseOver="toggleMode(this);">
+		1.
+	</li>
+	</ul>
+</div>
+
+<div id="helpbox" onMouseOut="this.style.display='none';">
+	<strong>Help</strong>
+	<p>Messed it all? Just Reload the page and start again.</p>
+	<p>Click on the CSS properties at the bottom to change the Sandbox
+	appearance.</p>
+	<p>Point the "A" and "1." buttons to use Paragraph or List on
+	the Sandbox.
+	<p>Maximize your browser window and be happy.</p>
+</div>
+
+<div id="sandboxarea">
+<div id="sandbox">
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+est laborum.
+</div>
+</div>
+
+<div id="rulesarea">
+
+<div class="column">
+color:
+<ul class="color">
+	<li>aqua</li>
+	<li>black</li>
+	<li>blue</li>
+	<li>fuchsia</li>
+	<li>gray</li>
+	<li>green</li>
+	<li>lime</li>
+	<li>maroon</li>
+	<li>navy</li>
+	<li>olive</li>
+	<li>purple</li>
+	<li>red</li>
+	<li>silver</li>
+	<li>teal</li>
+	<li>white</li>
+	<li>yellow</li>
+</ul>
+border-color:
+<ul class="border-color">
+	<li>aqua</li>
+	<li class="active">black</li>
+	<li>blue</li>
+	<li>fuchsia</li>
+	<li>gray</li>
+	<li>green</li>
+	<li>lime</li>
+	<li>maroon</li>
+	<li>navy</li>
+	<li>olive</li>
+	<li>purple</li>
+	<li>red</li>
+	<li>silver</li>
+	<li>teal</li>
+	<li>white</li>
+	<li>yellow</li>
+</ul>
+background-color:
+<ul class="background-color">
+	<li>aqua</li>
+	<li>black</li>
+	<li>blue</li>
+	<li>fuchsia</li>
+	<li>gray</li>
+	<li>green</li>
+	<li>lime</li>
+	<li>maroon</li>
+	<li>navy</li>
+	<li>olive</li>
+	<li>purple</li>
+	<li>red</li>
+	<li>silver</li>
+	<li>teal</li>
+	<li>white</li>
+	<li>yellow</li>
+</ul>
+background-image:
+<ul class="background-image">
+	<li>none</li>
+	<li>url(css-sandbox.gif)</li>
+</ul>
+background-repeat:
+<ul class="background-repeat">
+	<li>repeat</li>
+	<li>repeat-x</li>
+	<li>repeat-y</li>
+	<li>no-repeat</li>
+</ul>
+background-position:
+<ul class="background-position">
+	<li title="Requires background-repeat: no-repeat or repeat-y">left</li>
+	<li title="Requires background-repeat: no-repeat or repeat-y">right</li>
+	<li title="Requires background-repeat: no-repeat or repeat-x">top</li>
+	<li title="Requires background-repeat: no-repeat or repeat-x">bottom</li>
+	<li title="Requires background-repeat: no-repeat or repeat-x or repeat-y">center</li>
+</ul>
+background-attachment:
+<ul class="background-attachment">
+	<li>scroll</li>
+	<li>fixed</li>
+</ul>
+</div>
+
+
+<div class="column">
+font-family:
+<ul class="font-family">
+	<li>Verdana</li>
+	<li>Arial</li>
+	<li>Times</li>
+	<li>Courier</li>
+	<br />
+	<li>sans-serif</li>
+	<li>serif</li>
+	<li>monospace</li>
+	<li>cursive</li>
+	<li>fantasy</li>
+</ul>
+font-size:
+<ul class="font-size">
+	<li title="Requires powerful glasses :)">xx-small</li>
+	<li>x-small</li>
+	<li>small</li>
+	<li>medium</li>
+	<li>large</li>
+	<li>x-large</li>
+	<li title="I hope your browser window is huge...">xx-large</li>
+	<br />
+	<li>smaller</li>
+	<li>larger</li>
+	<br />
+	<li>8pt</li>
+	<li>10pt</li>
+	<li>12pt</li>
+	<li>14pt</li>
+	<li>16pt</li>
+	<br />
+	<li>50%</li>
+	<li>75%</li>
+	<li>100%</li>
+	<li>150%</li>
+</ul>
+font-style:
+<ul class="font-style">
+	<li>normal</li>
+	<li>italic</li>
+	<li>oblique</li>
+</ul>
+font-variant:
+<ul class="font-variant">
+	<li>normal</li>
+	<li class="active">small-caps</li>
+</ul>
+font-weight:
+<ul class="font-weight">
+	<li>normal</li>
+	<li>bold</li>
+	<li>bolder</li>
+	<li>lighter</li>
+</ul>
+<!--
+	font-stretch:
+	<ul class="font-stretch">
+		<li>ultra-condensed</li>
+		<li>extra-condensed</li>
+		<li>condensed</li>
+		<li>semi-condensed</li>
+		<li>normal</li>
+		<li>semi-expanded</li>
+		<li>expanded</li>
+		<li>extra-expanded</li>
+		<li>ultra-expanded</li>
+	</ul>
+	<ul class="font-stretch">
+		<li>wider</li>
+		<li>narrower</li>
+	</ul>
+-->
+</div>
+
+
+<div class="column">
+text-align:
+<ul class="text-align">
+	<li>left</li>
+	<li>right</li>
+	<li>center</li>
+	<li class="active">justify</li>
+</ul>
+text-decoration:
+<ul class="text-decoration">
+	<li>none</li>
+	<li>underline</li>
+	<li>overline</li>
+	<li>line-through</li>
+	<li title="Click here and the WebGods will vaporize you">blink</li>
+</ul>
+text-transform:
+<ul class="text-transform">
+	<li>none</li>
+	<li>capitalize</li>
+	<li>uppercase</li>
+	<li>lowercase</li>
+</ul>
+text-indent:
+<ul class="text-indent" style="white-space: nowrap">
+	<li>0</li>
+	<li>1em</li>
+	<li>2em</li>
+	<li>5em</li>
+	<li>-2em</li>
+</ul>
+line-height:
+<ul class="line-height">
+	<li>normal</li>
+	<li>150%</li>
+	<li>50%</li>
+</ul>
+letter-spacing:
+<ul class="letter-spacing">
+	<li>normal</li>
+	<li>.1em</li>
+	<li>.2em</li>
+	<li>.5em</li>
+	<li>1em</li>
+</ul>
+word-spacing:
+<ul class="word-spacing">
+	<li>normal</li>
+	<li>.2em</li>
+	<li>.5em</li>
+	<li>1em</li>
+	<li>1.5em</li>
+</ul>
+white-space:
+<ul class="white-space">
+	<li>normal</li>
+	<li>pre</li>
+	<li>nowrap</li>
+</ul>
+direction:
+<ul class="direction">
+	<li>ltr</li>
+	<li>rtl</li>
+</ul>
+</div>
+
+
+<div class="column">
+border-style:
+<ul class="border-style">
+	<li>none</li>
+	<li title="Requires border-width &gt; 0">solid</li>
+	<li title="Requires border-width &gt; 0" class="active">double</li>
+	<li title="Requires border-width &gt; 0">dashed</li>
+	<li title="Requires border-width &gt; 0">dotted</li>
+	<li title="Requires border-width &gt; 0">groove</li>
+	<li title="Requires border-width &gt; 0">ridge</li>
+	<li title="Requires border-width &gt; 0">inset</li>
+	<li title="Requires border-width &gt; 0">outset</li>
+</ul>
+border-width:
+<ul class="border-width">
+	<li title="Requires border-style != none">thin</li>
+	<li title="Requires border-style != none">medium</li>
+	<li title="Requires border-style != none">thick</li>
+	<br />
+	<li>0</li>
+	<li title="Requires border-style != none">1px</li>
+	<li title="Requires border-style != none">2px</li>
+	<li title="Requires border-style != none" class="active">5px</li>
+	<li title="Requires border-style != none">10px</li>
+	<br />
+	<li title="Requires border-style != none">0.5em</li>
+	<li title="Requires border-style != none">1em</li>
+	<li title="Requires border-style != none">2em</li>
+</ul>
+padding:
+<ul class="padding">
+	<li>0</li>
+	<li class="active">1em</li>
+	<li>2em</li>
+	<li>3em</li>
+	<li>4em</li>
+	<li>5em</li>
+	<br />
+	<li>1px</li>
+	<li>5px</li>
+	<li>10px</li>
+	<li>25px</li>
+	<li>50px</li>
+</ul>
+visibility:
+<ul class="visibility">
+	<li>visible</li>
+	<li>hidden</li>
+	<li>collapse</li>
+</ul>
+display:
+<ul class="display">
+	<li>none</li>
+	<li>block</li>
+	<li>inline</li>
+	<li>list-item</li>
+	<li>marker</li>
+	<li>run-in</li>
+	<li>compact</li>
+	<li>table</li>
+	<li>inline-table</li>
+	<li>table-cell</li>
+<!--
+	<li>table-row</li>
+	<li>table-column</li>
+	<li>table-row-group</li>
+	<li>table-column-group</li>
+	<li>table-caption</li>
+	<li>table-header-group</li>
+	<li>table-footer-group</li>
+-->
+</ul>
+cursor:
+<ul class="cursor">
+	<li>auto</li>
+	<li>crosshair</li>
+	<li>default</li>
+	<li>pointer</li>
+	<li>hand</li>
+	<li>move</li>
+	<li>text</li>
+	<li>wait</li>
+	<li>help</li>
+	<li>e-resize</li>
+	<li>n-resize</li>
+	<li>s-resize</li>
+	<li>w-resize</li>
+	<li>ne-resize</li>
+	<li>nw-resize</li>
+	<li>se-resize</li>
+	<li>sw-resize</li>
+</ul>
+</div>
+
+
+<div class="column">
+width:
+<ul class="width" style="white-space: nowrap">
+	<li>auto</li>
+	<li class="active">50%</li>
+	<li>75%</li>
+	<li>100%</li>
+</ul>
+height:
+<ul class="height">
+	<li>auto</li>
+	<li>50px</li>
+	<li>100px</li>
+	<li>200px</li>
+	<li>50%</li>
+</ul>
+overflow:
+<ul class="overflow">
+	<li>auto</li>
+	<li>visible</li>
+	<li>hidden</li>
+	<li>scroll</li>
+</ul>
+float:
+<ul class="float">
+	<li>none</li>
+	<li title="Requires position: static or relative">left</li>
+	<li title="Requires position: static or relative">right</li>
+</ul>
+position:
+<ul class="position">
+	<li>static</li>
+	<li class="active">relative</li>
+	<li>absolute</li>
+	<li title="Scroll the page to see it fixed">fixed</li>
+</ul>
+top:
+<ul class="top">
+	<li>auto</li>
+	<li>0</li>
+	<li class="active">40px</li>
+	<li>50%</li>
+</ul>
+bottom:
+<ul class="bottom">
+	<li>auto</li>
+	<li>0</li>
+	<li>40px</li>
+	<li>50%</li>
+</ul>
+left:
+<ul class="left">
+	<li>auto</li>
+	<li>0</li>
+	<li>40px</li>
+	<li>50%</li>
+</ul>
+right:
+<ul class="right">
+	<li>auto</li>
+	<li>0</li>
+	<li>40px</li>
+	<li>50%</li>
+</ul>
+<!--
+	margin-left:
+	<ul class="margin-left">
+		<li>0</li>
+		<li>1em</li>
+		<li>5em</li>
+		<li>auto</li>
+	</ul>
+	margin-right:
+	<ul class="margin-right">
+		<li>0</li>
+		<li>1em</li>
+		<li>5em</li>
+		<li>auto</li>
+	</ul>
+-->
+</div>
+
+<div class="column" id="listcolumn" style="width:10%">
+list-style-type:
+<ul class="list-style-type">
+	<li>none</li>
+	<li>disk</li>
+	<li>circle</li>
+	<li>square</li>
+	<li>decimal</li>
+	<li>decimal-leading-zero</li>
+	<li>lower-roman</li>
+	<li>upper-roman</li>
+	<li>lower-alpha</li>
+	<li>upper-alpha</li>
+	<li>lower-latin</li>
+	<li>upper-latin</li>
+	<li>lower-greek</li>
+	<!--
+	<br />
+	<li>hebrew</li>
+	<li>armenian</li>
+	<li>georgian</li>
+	<br />
+	<li>cjk-ideographic</li>
+	<li>hiragana</li>
+	<li>katakana</li>
+	<li>hiragana-iroha</li>
+	<li>katakana-iroha</li>
+	-->
+</ul>
+list-style-image:
+<ul class="list-style-image">
+	<li>none</li>
+	<li>url(css-sandbox.gif)</li>
+</ul>
+list-style-position:
+<ul class="list-style-position">
+	<li>inside</li>
+	<li>outside</li>
+</ul>
+</div>
+
+<!--
+marker-offset:
+<ul class="marker-offset">
+	<li>auto</li>
+	<li>5px</li>
+	<li>5.0em</li>
+</ul>
+quotes:
+<ul class="quotes">
+	<li>none</li>
+	<li>" "</li>
+	<li>' '</li>
+</ul>
+clip:
+<ul class="clip">
+	<li>auto</li>
+	<li>rect(0px 200px 200px 0px)</li>
+	<li>rect(10px 10px 10px 10px)</li>
+</ul>
+vertical-align:
+<ul class="vertical-align">
+	<li>sub</li>
+	<li>super</li>
+	<li>middle</li>
+	<li>50%</li>
+</ul>
+-->
+<!--
+<ul class="z-index">
+	<li>auto</li>
+	<li>5</li>
+	<li>-5</li>
+</ul>
+XXX see how to define pseudo classes in javascript
+hover:
+<ul class=":hover">
+	<li>...</li>
+</ul>
+<ul class="first-letter">
+	<li>...</li>
+</ul>
+<ul class="first-line">
+	<li>...</li>
+</ul>
+-->
+
+
+<!-- close #rulesarea -->
+</div>
+
+<div id="wild"
+	title="We have the SANE and WILD operation modes. Click here to change the mode. What is wild? Try for yourself, at your own risk :)"
+	onClick="toggleWild()">sane</div>
+
+</body>
+</html>
