@@ -21,7 +21,10 @@
 		Alessandro Ramos dos Santos (bugfixes)
 		http://edenfall.blogspot.com
 	 
-		Luciano Espirito Santo "LES" (bugfixes)
+		Luciano Espirito Santo "LES" (bugfixes, ideas)
+		
+		Marlon Silva Carvalho ("CSS Code" implementation)
+		http://www.marloncarvalho.net
 -->
 
 <html>
@@ -109,6 +112,33 @@
 		font-family	: sans-serif;
 		vertical-align	: top;
 		}
+ 	#codebox
+		{
+		display		: none;
+		position	: absolute;
+		bottom		: 0;
+		right		: 0;
+		padding 	: 0;
+		border		: 1px solid maroon;
+		background-color: #fcc;
+		cursor		: default;
+		z-index		: 3;
+		}
+	#codetext 
+		{
+ 		width 		: 25em;
+		height		: 20em;
+		font-family	: sans-serif;
+		}
+	#codebutton
+		{
+		position	: absolute;
+		bottom		: 0px;
+		right		: 0px;
+		color		: #fff;
+		background-color: #000;
+		z-index		: 2;
+		}
 	#properties
 		{
 		clear		: both;
@@ -144,7 +174,7 @@
 		line-height	: 100%;
 		color		: #666;
 		}
-	#properties td li:hover, #wild:hover
+	#properties td li:hover
 		{
 		background-color: yellow;
 		color		: #000;
@@ -160,14 +190,6 @@
 		outline-width	: 0;
 		border		: 1px solid #daa;
 		}
-	#wild
-		{
-		position	: absolute;
-		bottom		: 0px;
-		right		: 2px;
-		color		: #000;
-		}
-		
 	* html li.active
 		{
 		border		: 1px solid #daa; /* IE is outline-less */
@@ -223,23 +245,16 @@ function toggleMode(button) {
 	button.className = 'active';
 }
 
-// Deactivated the "wild" feature.
-// - setAttribute() doesn't work on IE
-// - The feature is funny, but useless
-//
-// function toggleWild() {
-// 	var props = document.getElementById('properties').getElementsByTagName('a');
-// 	var wild = document.getElementById('wild'); 
-// 	var current = wild.innerHTML;
-// 	for (i = 0; i < props.length; i++) {
-// 		if (current == 'sane') {
-// 			props[i].setAttribute('onMouseOver', 'xyzzy(this);');
-// 		} else {
-// 			props[i].setAttribute('onMouseOver', '');
-// 		}
-// 	}
-// 	wild.innerHTML = (current == 'wild') ? 'sane' : 'wild'; // flip
-// }
+// Show/hide the CSS Code panel
+function toggleCode(display) {
+	var codebox = document.getElementById('codebox');
+	if (display) {
+		parseCssCode();		
+		codebox.style.display = 'block';
+	} else {
+		codebox.style.display = 'none';
+	}
+}
 
 // Converts each sentence of the sandbox text to a list item
 function sandboxAsList() {
@@ -255,6 +270,20 @@ function sandboxAsPara() {
 	var text = document.getElementById('sandbox').innerHTML;
 	if (text.charAt(0) != '<') return; // already done
 	document.getElementById('sandbox').innerHTML = text.stripTags();
+}
+
+// Extract and format all the active properties and its values
+function parseCssCode() {
+	var lis = document.getElementById('properties').getElementsByTagName('li');
+	var cssCode = '';
+	for (i = 0; i < lis.length; i++) { 
+		if (lis[i].className != 'active') continue;
+		var prop = lis[i].parentNode.className;
+		var value = lis[i].getElementsByTagName('a')[0].innerHTML.stripTags().strip();
+		cssCode += '\t\t' + prop + ': ' + value + ';\n';
+	}
+	cssCode = '<style>\n\t#sandbox {\n' + cssCode + '\t}\n</style>';
+	document.getElementById('codetext').value = cssCode;
 }
 
 // The magic function called whenever the user clicks some property
@@ -344,6 +373,11 @@ window.onload = init;
 		<p>Bagunçou tudo? Basta recarregar a página.</p>
 		<p>Aumente o tamanho da janela do navegador!</p>
 	</td></tr></table>
+</div>
+
+<div id="codebox" onMouseOut="toggleCode(false);">
+	<strong>CSS Code</strong><br>
+	<textarea id="codetext" name="codetext"></textarea>
 </div>
 
 <div id="sandbox">
@@ -897,10 +931,7 @@ pseudo:
 </tr></table>
 </div>
 
-<!-- <div id="wild"
-	title="We have the SANE and WILD operation modes. Click here to change the mode. What is wild? Try for yourself, at your own risk :)"
-	onClick="toggleWild()">sane</div>
- -->
+<div id="codebutton" onMouseOver="toggleCode(true)">&lt;CODE&gt;</div>
 
 </body>
 </html>
