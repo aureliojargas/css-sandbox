@@ -1,7 +1,7 @@
 # CSS Sandbox
 
 by [Aurelio Jargas](http://aurelio.net/aurelio/)  
-MIT Licensed, 2006-2007
+MIT Licensed, 2006-2014
 
 Interactive page to play with CSS properties.  
 Click to turn the properties ON/OFF, no typing required.
